@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vacancy</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --bg-color: #ecf0f1;
+            --transition: all 0.3s ease-in-out;
+            --primary-color1: #3498db;
+            --secondary-color1: #2ecc71;
+            --shadow-color1: rgba(0, 0, 0, 0.2);
+            --bg-color1: #1f242d;
+            --second-bg-color1: #323946;
+            --text-color1: #ffffff;
+            --main-color1: #0ef;
+        }
+
+        body {
+            background: linear-gradient(
+                to right,
+                var(--secondary-color),
+                var(--second-bg-color1)
+            );
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px var(--shadow-color1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--primary-color);
+            border-radius: 30px;
+            box-shadow: 0 4px 10px var(--shadow-color1);
+        }
+
+        .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--main-color1);
+            font-size: 1.8rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid var(--shadow-color1);
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--primary-color1);
+        }
+
+        select, textarea {
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 20px;
+                padding: 15px;
+            }
+            button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- <header>
+    <h1>Add Vacancy</h1>
+</header> -->
+
+<div class="form-container">
+    <h3>Add Vacancy</h3>
+    <input type="text" id="flat_number" placeholder="Flat Number">
+    <input type="number" id="no_of_days_to_be_vacant" placeholder="No of Days">
+    <input type="text" id="reason" placeholder="Reason">
+    <button id="submitButton" onclick="addVacancy()">Add Vacancy</button>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:3000/api/vacancies';
+
+    // Function to validate flat number
+    function validateFlatNumber(flat_number) {
+        if (!flat_number) {
+            alert('Flat number is required.');
+            return false;
+        }
+
+        if (/^-/.test(flat_number)) {
+            alert('Flat number cannot be negative.');
+            return false;
+        }
+
+        if (flat_number === "0") {
+            alert('Flat number cannot be zero.');
+            return false;
+        }
+
+        if (!/^[A-J](10|[1-9])$/.test(flat_number)) {
+            alert(
+                `Invalid flat number "${flat_number}".\n` +
+                'Flat number must start with a letter (A-J) and be followed by a number between 1 and 10.\n' +
+                'Examples of valid flat numbers: A1, B10, H5.\n' +
+                'Invalid examples: B11, J12, S1, K2.'
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    // Function to validate number of days to be vacant
+    function validateNumberOfDays(days) {
+        if (!days) {
+            alert('Number of days is required.');
+            return false;
+        }
+
+        if (days <= 0) {
+            alert(`Invalid number of days: "${days}". Must be greater than zero.`);
+            return false;
+        }
+
+        if (!Number.isInteger(Number(days))) {
+            alert(`Invalid number of days: "${days}". Please enter a whole number.`);
+            return false;
+        }
+
+        if (days > 1000) {
+            alert(`Invalid number of days: "${days}". Please enter a realistic value.`);
+            return false;
+        }
+
+        return true;
+    }
+
+    // Function to validate reason
+    function validateReason(reason) {
+        if (!reason) {
+            alert('Reason is required.');
+            return false;
+        }
+
+        if (/^[a-zA-Z]$/.test(reason)) {
+            alert('Reason cannot be a single letter.');
+            return false;
+        }
+
+        if (/^\d+$/.test(reason)) {
+            alert('Reason cannot contain only digits.');
+            return false;
+        }
+
+        const wordCount = reason.split(/\s+/).filter(Boolean).length;
+        if (wordCount < 2) {
+            alert('Reason must contain at least 2 meaningful words.');
+            return false;
+        }
+
+        return true;
+    }
+
+    // Function to add a new vacancy
+    async function addVacancy() {
+        const flat_number = document.getElementById('flat_number').value.trim();
+        const no_of_days_to_be_vacant = document.getElementById('no_of_days_to_be_vacant').value.trim();
+        const reason = document.getElementById('reason').value.trim();
+
+        // Validate inputs
+        if (
+            !validateFlatNumber(flat_number) ||
+            !validateNumberOfDays(no_of_days_to_be_vacant) ||
+            !validateReason(reason)
+        ) {
+            return;
+        }
+
+        // If all validations pass, proceed to add the vacancy
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ flat_number, no_of_days_to_be_vacant, reason })
+        });
+
+        if (response.ok) {
+            alert('Vacancy added successfully');
+        } else {
+            alert('Failed to add vacancy');
+        }
+    }
+</script>
+
+
+</body>
+</html>

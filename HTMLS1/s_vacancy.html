@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Vacancies</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        text-decoration: none;
+        border: none;
+        outline: none;
+        scroll-behavior: smooth;
+        font-family: "Poppins", sans-serif;
+      }
+
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #1abc9c;
+        --accent-color: #3498db;
+        --text-light: #ecf0f1;
+        --text-dark: #2c3e50;
+        --bg-color: #ecf0f1;
+        --transition: all 0.3s ease-in-out;
+        --primary-color1: #3498db;
+        --secondary-color1: #2ecc71;
+        --shadow-color1: rgba(0, 0, 0, 0.2);
+        --bg-color1: #1f242d;
+        --second-bg-color1: #323946;
+        --text-color1: #ffffff;
+        --main-color1: #0ef;
+      }
+
+      body {
+        background: linear-gradient(
+          to right,
+          var(--secondary-color),
+          var(--second-bg-color1)
+        );
+        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: var(--text-light);
+        text-align: center;
+        padding: 20px 0;
+        box-shadow: 0 4px 6px var(--shadow-color1);
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 50px auto;
+        background-color: var(--primary-color);
+        padding: 25px;
+        border-radius: 1rem;
+        box-shadow: 0 4px 10px var(--shadow-color1);
+      }
+
+      .container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--main-color1);
+        font-size: 1.8rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid var(--shadow-color1);
+        text-align: center;
+      }
+
+      th {
+        background-color: var(--accent-color);
+        color: var(--text-light);
+      }
+
+      tr:nth-child(even) {
+        background-color: var(--second-bg-color1);
+        color: var(--text-light);
+      }
+
+      tr:nth-child(odd) {
+        background-color: var(--bg-color1);
+        color: var(--text-light);
+      }
+
+      tr:hover {
+        background-color: var(--secondary-color1);
+        color: var(--text-color1);
+      }
+
+      .delete {
+        padding: 8px 16px;
+        background-color: var(--secondary-color);
+        color: var(--text-light);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .delete:hover {
+        background-color: var(--primary-color1);
+      }
+
+      @media (max-width: 768px) {
+        table {
+          font-size: 0.9em;
+        }
+
+        th,
+        td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <header>
+      <h1>Vacancy Management</h1>
+    </header> -->
+
+    <div class="container">
+      <h2>Vacancies</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Flat Number</th>
+            <th>No. of Days</th>
+            <th>Reason</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vacancyTable">
+          <!-- Vacancy rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      const apiUrl = "http://localhost:3000/api/vacancies";
+
+      // Function to fetch and display all vacancies
+      async function fetchVacancies() {
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error("Failed to fetch vacancies.");
+          }
+
+          const vacancies = await response.json();
+          const tableBody = document.getElementById("vacancyTable");
+          tableBody.innerHTML = ""; // Clear existing rows
+
+          vacancies.forEach((vacancy) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                    <td>${vacancy.flat_number}</td>
+                    <td>${vacancy.no_of_days_to_be_vacant}</td>
+                    <td>${vacancy.reason}</td>
+                    <td>
+                        <button class="delete" onclick="deleteVacancy('${vacancy._id}')">Delete</button>
+                    </td>
+                `;
+            tableBody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("Error fetching vacancies:", error);
+        }
+      }
+
+      // Function to delete a vacancy
+      async function deleteVacancy(id) {
+        try {
+          const response = await fetch(`${apiUrl}/${id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            alert("Vacancy deleted successfully");
+            fetchVacancies();
+          } else {
+            alert("Failed to delete vacancy");
+          }
+        } catch (error) {
+          console.error("Error deleting vacancy:", error);
+        }
+      }
+
+      // Initialize the app
+      window.onload = fetchVacancies;
+    </script>
+  </body>
+</html>

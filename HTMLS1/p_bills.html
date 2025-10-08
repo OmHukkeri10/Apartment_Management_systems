@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Bill as Paid</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --bg-color: #ecf0f1;
+            --transition: all 0.3s ease-in-out;
+            --primary-color1: #3498db;
+            --secondary-color1: #2ecc71;
+            --shadow-color1: rgba(0, 0, 0, 0.2);
+            --bg-color1: #1f242d;
+            --second-bg-color1: #323946;
+            --text-color1: #ffffff;
+            --main-color1: #0ef;
+        }
+
+        body {
+            background: linear-gradient(
+                to right,
+                var(--secondary-color),
+                var(--second-bg-color1)
+            );
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--primary-color);
+            border-radius: 30px;
+            box-shadow: 0 4px 10px var(--shadow-color1);
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--main-color1);
+            font-size: 1.8rem;
+        }
+
+        label {
+            color: var(--text-light);
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: block;
+        }
+
+        input[type="text"], select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid var(--shadow-color1);
+            border-radius: 10px;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--primary-color1);
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .bill-log {
+            background: var(--second-bg-color1);
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color1);
+        }
+
+        .bill-log p {
+            color: var(--text-light);
+            margin: 5px 0;
+        }
+
+        .section-divider {
+            margin: 20px 0;
+            border-top: 2px solid var(--shadow-color1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            input[type="text"], select, button {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>Pay Maintenance Bill</h3>
+        <label for="flat_number">Flat Number:</label>
+        <input type="text" id="flat_number" placeholder="Enter flat number" required>
+
+        <label for="utr_number">UTR Number:</label>
+        <input type="text" id="utr_number" placeholder="Enter UTR number" required>
+
+        <button onclick="markBillAsPaid()">Submit</button>
+
+        <div class="message" id="message"></div>
+
+        <div class="section-divider"></div>
+
+        <h3>View Bill Logs</h3>
+        <label for="bill_status">Select Bill Status:</label>
+        <select id="bill_status">
+            <option value="Paid">Paid</option>
+            <option value="Unpaid">Unpaid</option>
+        </select>
+
+        <button onclick="viewBillLogs()">View Bill Logs</button>
+
+        <div class="details" id="billDetails"></div>
+    </div>
+
+    <script>
+        async function markBillAsPaid() {
+            const flatNumber = document.getElementById('flat_number').value.trim();
+            const utrNumber = document.getElementById('utr_number').value.trim();
+    
+            // Validate flat number
+            if (!/^[A-J](10|[1-9])$/.test(flatNumber)) {
+                alert(`Flat number "${flatNumber}" is invalid. Please enter a valid flat number in the format A1, A10, B5, etc.`);
+                return;
+            }
+    
+            // Validate UTR number
+            if (!/^\d{12}$/.test(utrNumber)) {
+                alert('UTR number must be a 12-digit numeric value.');
+                return;
+            }
+    
+            const response = await fetch('http://localhost:3000/markBillAsPaid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ flat_number: flatNumber, utr_number: utrNumber }),
+            });
+    
+            const result = await response.json();
+    
+            document.getElementById('message').textContent = result.message || 'An error occurred!';
+        }
+    
+        async function viewBillLogs() {
+            const status = document.getElementById('bill_status').value;
+    
+            const response = await fetch(`http://localhost:3000/getBillLogs/${status}`);
+            const result = await response.json();
+    
+            if (result.success) {
+                let logs = '';
+                result.bills.forEach(bill => {
+                    logs += `
+                        <div class="bill-log">
+                            <p><strong>Flat Number:</strong> ${bill.flat_number}</p>
+                            <p><strong>Status:</strong> ${bill.status}</p>
+                            <p><strong>Date:</strong> ${bill.date}</p>
+                            <p><strong>UTR Number:</strong> ${bill.utr_number}</p>
+                        </div>
+                    `;
+                });
+                document.getElementById('billDetails').innerHTML = logs;
+            } else {
+                document.getElementById('billDetails').textContent = result.message || 'No bill logs found.';
+            }
+        }
+    </script>
+    
+
+</body>
+</html>

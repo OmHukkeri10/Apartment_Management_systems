@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Management</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --text-light: #ecf0f1;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --main-color: #0ef;
+        }
+        body {
+            background: linear-gradient(to right, var(--secondary-color), #323946);
+            color: var(--text-light);
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            background: var(--primary-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+        h3 {
+            text-align: center;
+            color: var(--main-color);
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        th {
+            background: #34495e;
+        }
+        .checkout-btn {
+            background: #e74c3c;
+            padding: 8px 15px;
+            border-radius: 4px;
+            width: auto;
+        }
+        .date-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .date-filter input {
+            flex: 1;
+        }
+        .date-filter button {
+            width: auto;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+   
+    <div class="form-container">
+        <h3>Visitor Log</h3>
+        <div class="date-filter">
+            <input type="date" id="filter_date" onchange="loadVisitors()">
+            <button onclick="clearDateFilter()">Clear Filter</button>
+        </div>
+        <table id="visitorTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Flat Number</th>
+                    <th>Purpose</th>
+                    <th>Check In Time</th>
+                    <th>Check Out Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="visitorTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/visitors';
+    
+        async function addVisitor() {
+            const visitorName = document.getElementById('visitor_name').value;
+            const flatNumber = document.getElementById('flat_number').value;
+            const purpose = document.getElementById('purpose').value;
+    
+            if (!visitorName || !flatNumber || !purpose) {
+                alert('Please fill in all fields');
+                return;
+            }
+    
+            const visitor = {
+                visitor_name: visitorName,
+                flat_number: flatNumber,
+                purpose: purpose,
+                entry_datetime: new Date().toISOString(),
+                status: 'Active'
+            };
+    
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(visitor)
+                });
+    
+                if (!response.ok) throw new Error('Failed to add visitor');
+    
+                clearForm();
+                await loadVisitors();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add visitor');
+            }
+        }
+    
+        async function loadVisitors() {
+            try {
+                const filterDate = document.getElementById('filter_date').value;
+    
+                // Validate the selected date
+                if (filterDate) {
+                    const selectedDate = new Date(filterDate);
+                    const today = new Date();
+                    const oct2024 = new Date('2024-10-01');
+    
+                    if (selectedDate < oct2024) {
+                        alert('Error: Date must be after October 2024.');
+                        return;
+                    }
+    
+                    if (selectedDate > today) {
+                        alert('Error: Date cannot be in the future.');
+                        return;
+                    }
+                }
+    
+                let url = API_URL;
+                if (filterDate) {
+                    url = `${API_URL}/date/${filterDate}`;
+                }
+    
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch visitors');
+    
+                const visitors = await response.json();
+                const tbody = document.getElementById('visitorTableBody');
+                tbody.innerHTML = '';
+    
+                if (visitors.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No visitors found</td></tr>';
+                    return;
+                }
+    
+                visitors.forEach(visitor => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${visitor.visitor_name}</td>
+                        <td>${visitor.flat_number}</td>
+                        <td>${visitor.purpose}</td>
+                        <td>${formatDateTime(visitor.entry_datetime)}</td>
+                        <td>${visitor.exit_datetime ? formatDateTime(visitor.exit_datetime) : '-'}</td>
+                        <td>${visitor.status}</td>
+                        <td>${visitor.status === 'Active' ? 
+                            `<button class="checkout-btn" onclick="checkOut('${visitor._id}')">Check Out</button>` : 
+                            '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    
+        function clearDateFilter() {
+            document.getElementById('filter_date').value = '';
+            loadVisitors();
+        }
+    
+        async function checkOut(id) {
+            try {
+                const response = await fetch(`${API_URL}/checkout/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exit_datetime: new Date().toISOString() })
+                });
+    
+                if (!response.ok) throw new Error('Failed to check out visitor');
+                await loadVisitors();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to check out visitor');
+            }
+        }
+    
+        function formatDateTime(dateStr) {
+            return new Date(dateStr).toLocaleString();
+        }
+    
+        function clearForm() {
+            document.getElementById('visitor_name').value = '';
+            document.getElementById('flat_number').value = '';
+            document.getElementById('purpose').value = '';
+        }
+    
+        loadVisitors();
+    </script>
+    
+</body>
+</html>

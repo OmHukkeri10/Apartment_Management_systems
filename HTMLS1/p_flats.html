@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Flat Details</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --bg-color: #ecf0f1;
+            --transition: all 0.3s ease-in-out;
+            --primary-color1: #3498db;
+            --secondary-color1: #2ecc71;
+            --shadow-color1: rgba(0, 0, 0, 0.2);
+            --bg-color1: #1f242d;
+            --second-bg-color1: #323946;
+            --text-color1: #ffffff;
+            --main-color1: #0ef;
+        }
+
+        body {
+            background: linear-gradient(to right, var(--secondary-color), var(--second-bg-color1));
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--primary-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color1);
+            color: var(--text-light);
+        }
+
+        h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--main-color1);
+        font-size: 1.8rem;
+      }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        button {
+            background-color: var(--primary-color1);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color1);
+        }
+
+        .details {
+            margin-top: 20px;
+        }
+
+        .vehicles, .family {
+            margin-top: 10px;
+        }
+
+        hr {
+            border: 1px solid var(--secondary-color1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>Flat Details</h3>
+        <!-- <label for="flat_number">Select Flat Number:</label> -->
+        <select id="flat_number">
+            <option value="">Loading...</option>
+        </select>
+
+        <button onclick="fetchFlatDetails()">Fetch Details</button>
+
+        <div class="details" id="flatDetails"></div>
+    </div>
+
+    <script>
+        async function loadFlatNumbers() {
+            const dropdown = document.getElementById('flat_number');
+            dropdown.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                const response = await fetch('http://localhost:3000/getFlatNumbers');
+                const result = await response.json();
+
+                if (result.success && result.flat_numbers.length > 0) {
+                    dropdown.innerHTML = result.flat_numbers
+                        .map(flatNumber => `<option value="${flatNumber}">${flatNumber}</option>`)
+                        .join('');
+                    dropdown.insertAdjacentHTML('afterbegin', '<option value="" selected>Select a flat number</option>');
+                } else {
+                    dropdown.innerHTML = '<option value="">No flats found</option>';
+                }
+            } catch (err) {
+                dropdown.innerHTML = '<option value="">Error loading flats</option>';
+                console.error('Error fetching flat numbers:', err);
+            }
+        }
+
+        async function fetchFlatDetails() {
+            const flatNumber = document.getElementById('flat_number').value;
+            if (!flatNumber) {
+                document.getElementById('flatDetails').textContent = 'Please select a flat number!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/getFlatDetails/${flatNumber}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const flat = result.flat_details;
+                    let details = `
+                        <h3>Flat Details</h3>
+                        <p><strong>Flat Number:</strong> ${flat.flat_number}</p>
+                        <p><strong>Owner ID:</strong> ${flat.owner_id}</p>
+                        <p><strong>Owner Name:</strong> ${flat.owner_name}</p>
+                        <p><strong>Tenant Name:</strong> ${flat.tenant_name}</p>
+                        <p><strong>Tenant Mobile:</strong> ${flat.tenant_mobile}</p>
+                        <p><strong>Tenant Email:</strong> ${flat.tenant_email}</p>
+                        <p><strong>Tenant Aadhaar:</strong> ${flat.tenant_aadhaar_number}</p>
+                        <div class="vehicles">
+                            <h4>Vehicles</h4>
+                            ${flat.vehicles.length > 0
+                                ? flat.vehicles.map(v => `<p>${v.vehicle_type}: ${v.registration_number}</p>`).join('')
+                                : '<p>No vehicles found.</p>'}
+                        </div>
+                        <div class="family">
+                            <h4>Family Details</h4>
+                            <p><strong>Total Members:</strong> ${flat.family.number_of_members}</p>
+                            <p><strong>Male Members:</strong> ${flat.family.male_count}</p>
+                            <p><strong>Female Members:</strong> ${flat.family.female_count}</p>
+                            <p><strong>Children:</strong> ${flat.family.child_count}</p>
+                        </div>
+                    `;
+                    document.getElementById('flatDetails').innerHTML = details;
+                } else {
+                    document.getElementById('flatDetails').textContent = result.message || 'Flat details not found.';
+                }
+            } catch (err) {
+                document.getElementById('flatDetails').textContent = 'Error fetching flat details.';
+                console.error('Error:', err);
+            }
+        }
+
+        // Load flat numbers when the page loads
+        window.onload = loadFlatNumbers;
+    </script>
+
+</body>
+</html>

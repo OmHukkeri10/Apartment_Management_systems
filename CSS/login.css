@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    scroll-behavior: smooth;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #1abc9c;
+    --accent-color: #3498db;
+    --text-light: #ecf0f1;
+    --text-dark: #2c3e50;
+    --bg-color: #ecf0f1;
+    --transition: all 0.3s ease-in-out;
+
+    --primary-color1: #3498db;
+    --secondary-color1: #2ecc71;
+    --shadow-color1: rgba(0, 0, 0, 0.2);
+    --bg-color1: #1f242d;
+    --second-bg-color1: #323946;
+    --text-color1: #ffffff;
+    --main-color1: #0ef;
+}
+
+body {
+    color: var(--text-color1);
+    background: linear-gradient(to right, var(--secondary-color), var(--second-bg-color1));
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* General Section Styling */
+section {
+    min-height: 60vh;
+    padding: 5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(240, 240, 240, 0.9); /* Light gray for better contrast */
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    color: var(--text-dark); /* Keep text color for better readability */
+}
+
+/* Header Styles */
+header {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: var(--bg-color1);
+    box-shadow: 0 4px 10px var(--shadow-color1);
+    z-index: 100;
+}
+
+.logo {
+    max-width: 150px;
+    margin-bottom: 2rem;
+}
+
+/* Login Title */
+h1 {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    color: var(--secondary-color1);
+}
+
+/* Input Groups */
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+}
+
+.input-field {
+    width: 100%;
+    padding: 1rem 2rem 1rem 3rem;
+    border: 2px solid var(--primary-color1);
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.input-field:focus {
+    border-color: var(--secondary-color1);
+    outline: none;
+}
+
+/* Buttons */
+/* .btn {
+    display: inline-flex;
+    justify-items: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    font-size: 1.2rem;
+    border: .2rem solid var(--main-color1);
+    border-radius: 50rem;
+    transition: background 0.5s ease, color 0.5s ease;
+} */
+
+.btn:hover {
+    background: var(--secondary-color1); /* Adjusted hover background */
+    color: var(--text-light); /* Keep text light on hover */
+    transform: translateY(-2px);
+}
+
+.btn {
+    display: block; /* Change to block for centering */
+    margin: auto; /* Center the button */
+    padding: 1rem 2rem;
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--primary-color); /* Original background color */
+    color: var(--text-light);
+    font-size: 1.2rem;
+    border: .2rem solid var(--main-color1);
+    border-radius: 50rem;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Forgot Password Link */
+.forgot-password {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--main-color1);
+    transition: color 0.3s;
+}
+
+.forgot-password:hover {
+    color: var(--secondary-color1); /* Change hover color */
+}
+
+select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

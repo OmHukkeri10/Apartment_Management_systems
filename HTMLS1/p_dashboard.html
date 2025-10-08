@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>President Dashboard</title>
+
+    <link rel="stylesheet" href="../CSS/p_dashboard.css">
+
+      <!-- Animate On Scroll -->
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet"> 
+
+      <!-- box icon -->
+      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+      
+      <!-- Animate CSS -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>  
+</head>
+<body>
+
+    <!-- The Header Section -->
+<header class="header">
+    <img src="../pics/logo.png" alt="Akshya Garden Apartment" class="logo_img">
+    <a href="#" class="logo">President Dashboard</a>
+</header>
+
+    <!-- ================================================================================================================================ -->
+    <section id="p_dashboard" class="p_dashboard">
+        <h2 class="animate__animated animate__zoomIn" data-aos="fade-up">Welcome to <span>President Dashboard</span></h2>
+               
+                <div class="president-card1" data-aos="fade-up">
+                    <h3>Residents Info</h3>
+                    <p>Get a complete overview of all residents and their contact information. Perfect for staying connected and ensuring everyone’s well-being.</p>
+                    <button class="btn" onclick="window.location.href='p_flats.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+
+        <div class="president-grid">
+
+                <div class="president-card" data-aos="fade-up">
+                    <h3>Maintenance Bills</h3>
+                    <p>Easily update and track maintenance bills for all flats. Ensure timely updates and a smooth collection process</p>
+                    <button class="btn" onclick="window.location.href='p_bills.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+                
+                <div class="president-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3>Vehicle Search</h3>
+                    <p>Quickly identify vehicle owners within the community by entering their registration number. Stay informed about all vehicles parked in the premises.</p>
+                    <button class="btn" onclick="window.location.href='p_vehicle.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+                
+                <div class="president-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3>Visitor Logs</h3>
+                    <p>Access detailed visitor logs for today to keep a close watch on who enters and exits the premises. A key tool for ensuring safety</p>
+                    <button class="btn" onclick="window.location.href='p_visitors.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+
+                
+                <div class="president-card" data-aos="fade-up">
+                    <h3>Complaints</h3>
+                    <p>Review all complaints submitted by residents. Address their concerns efficiently to maintain harmony and satisfaction.</p>
+                    <button class="btn" onclick="window.location.href='p_complaints.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+                
+                <div class="president-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3>Employee Logs</h3>
+                    <p>View daily logs of staff and employees to ensure tasks are being carried out effectively and maintain accountability</p>
+                    <button class="btn" onclick="window.location.href='p_employee.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+                
+                <div class="president-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3>Vacancy Check</h3>
+                    <p>Track flat vacancies when residents are away. Use this to ensure extra security or handle temporary arrangements as needed</p>
+                    <button class="btn" onclick="window.location.href='p_vacancy.html'"><i class='bx bx-link-external' ></i></button>
+                </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                duration: 1000, // Animation duration
+                once: true // Animation should happen only once
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Vehicle</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --bg-color: #ecf0f1;
+            --transition: all 0.3s ease-in-out;
+            --primary-color1: #3498db;
+            --secondary-color1: #2ecc71;
+            --shadow-color1: rgba(0, 0, 0, 0.2);
+            --bg-color1: #1f242d;
+            --second-bg-color1: #323946;
+            --text-color1: #ffffff;
+            --main-color1: #0ef;
+        }
+
+        body {
+            background: linear-gradient(
+                to right,
+                var(--secondary-color),
+                var(--second-bg-color1)
+            );
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px var(--shadow-color1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px var(--shadow-color1);
+        }
+
+        .container h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: var(--main-color1);
+        font-size: 1.8rem;
+      }
+
+        input[type="text"], input[type="datetime-local"], button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: 1px solid var(--shadow-color1);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--primary-color1);
+        }
+
+        .details {
+            margin-top: 20px;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .details h3 {
+            font-size: 1.5rem;
+        }
+
+        .details p {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            input[type="text"], input[type="datetime-local"], button {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>Search Vehicle</h3>
+        <label for="registration_number">Enter Registration Number:</label>
+        <input type="text" id="registration_number" placeholder="Enter registration number (e.g., KA48N1432)" required>
+
+        <button onclick="searchVehicle()">Search Vehicle</button>
+
+        <div class="details" id="vehicleDetails"></div>
+    </div>
+
+    <script>
+        // Function to validate the vehicle registration number
+        function validateRegistrationNumber(registrationNumber) {
+            if (!registrationNumber) {
+                alert('Registration number is required.');
+                return false;
+            }
+    
+            if (/^-/.test(registrationNumber)) {
+                alert('Registration number cannot starts from -ve sign.');
+                return false;
+            }
+    
+            if (registrationNumber === "0") {
+                alert('Registration number cannot be zero.');
+                return false;
+            }
+    
+            if (/^\d+$/.test(registrationNumber)) {
+                alert('Registration number cannot contain only digits.');
+                return false;
+            }
+    
+            if (/^[A-Za-z]+$/.test(registrationNumber)) {
+                alert('Registration number cannot contain only letters.');
+                return false;
+            }
+    
+            // Updated regex without spaces
+            const regex = /^[A-Z]{2}[0-9]{1,2}[A-Z]*[0-9]{4}$/;
+            if (!regex.test(registrationNumber)) {
+                alert(
+                    `Invalid registration number "${registrationNumber}".\n` +
+                    'Please enter a valid registration number in the format:\n' +
+                    'Example: KA49EC1234, DL2CAA5678, MH123456.'
+                );
+                return false;
+            }
+    
+            return true;
+        }
+    
+        // Function to search for a vehicle
+        async function searchVehicle() {
+            const registrationNumber = document.getElementById('registration_number').value.trim();
+    
+            // Validate the registration number
+            if (!validateRegistrationNumber(registrationNumber)) {
+                return;
+            }
+    
+            try {
+                const response = await fetch(`http://localhost:3000/searchVehicle/${registrationNumber}`);
+                const result = await response.json();
+    
+                if (result.success) {
+                    if (result.is_from_apartment) {
+                        const { vehicle, flat_details, family_details } = result;
+                        let details = `
+                            <h3>Vehicle Details</h3>
+                            <p><strong>Flat Number:</strong> ${vehicle.flat_number}</p>
+                            <p><strong>Vehicle Type:</strong> ${vehicle.vehicle_type}</p>
+                            <p><strong>Registration Number:</strong> ${vehicle.registration_number}</p>
+                            <h4>Flat Details</h4>
+                            <p><strong>Owner ID:</strong> ${flat_details.owner_id || 'N/A'}</p>
+                            <p><strong>Tenant Name:</strong> ${flat_details.tenant_name || 'N/A'}</p>
+                        `;
+                        document.getElementById('vehicleDetails').innerHTML = details;
+                    } else {
+                        document.getElementById('vehicleDetails').textContent = result.message;
+                    }
+                } else {
+                    document.getElementById('vehicleDetails').textContent = 'Error: Unable to fetch vehicle details.';
+                }
+            } catch (err) {
+                document.getElementById('vehicleDetails').textContent = 'Error fetching vehicle details.';
+                console.error('Error:', err);
+            }
+        }
+    </script>
+    
+    
+
+</body>
+</html>

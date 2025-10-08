@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard</title>
+
+    <link rel="stylesheet" href="../CSS/s_dashbaord.css">
+</head>
+<body>
+    <header class="header">
+        <img src="../pics/logo.png" alt="Akshya Garden Apartment" class="logo_img">
+        <a href="#" class="logo">Security Dashboard</a>
+    </header>
+
+    <div class="s_dashboard">
+        <div class="personal-info">
+            <h2>Welcome, Mr.Vasant</h2>
+            <!-- <p><strong>ID:</strong> [Security ID]</p>
+            <p><strong>Name:</strong> [Security Name]</p>
+            <p><strong>Shift:</strong> [Shift Timing]</p>
+            <p><strong>Contact:</strong> [Security Contact]</p> -->
+        </div>
+
+        <div class="button-container">
+            <button class="function-button" onclick="window.location.href='s_attendance.html'">Employee Attendance</button>
+            <button class="function-button" onclick="window.location.href='s_vacancy.html'">View Vacancies</button>
+            <button class="function-button" onclick="window.location.href='s_visitor.html'">Visitor Management</button>
+        </div>
+    </div>
+
+    <script>
+        // Mock database fetch simulation
+        document.addEventListener('DOMContentLoaded', () => {
+            
+
+            document.querySelector('.personal-info h2').textContent = `Welcome, ${data.name}`;
+            // document.querySelector('.personal-info').innerHTML += `
+            //     <p><strong>ID:</strong> ${data.id}</p>
+            //     <p><strong>Name:</strong> ${data.name}</p>
+            //     <p><strong>Shift:</strong> ${data.shift}</p>
+            //     <p><strong>Contact:</strong> ${data.contact}</p>
+            // `;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>President Login</title>
+    <link rel="stylesheet" href="../CSS/login.css">
+</head>
+<body>
+    <main>
+        <section class="section-login" data-aos="fade-up">
+            <img src="../pics/logo.png" alt="Akshya Garden Apartment" class="logo">
+            <div class="container">
+                <h1>President Login</h1>
+                <form onsubmit="event.preventDefault(); login();">
+                    <div class="input-group">
+                        <i class="input-icon fas fa-user"></i>
+                        <input type="text" id="mobile_number" class="input-field" placeholder="Mobile Number" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-lock"></i>
+                        <input type="password" id="password" class="input-field" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <div id="error-message" style="color: red; margin-top: 10px;"></div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            AOS.init({
+                duration: 1000, // Animation duration
+                once: true // Animation should happen only once
+            });
+        });
+    
+        async function login() {
+            const mobileNumber = document.getElementById('mobile_number').value.trim();
+            const password = document.getElementById('password').value.trim();
+    
+            // Mobile number validation
+            if (!/^\d{10}$/.test(mobileNumber)) {
+                if (mobileNumber === "0") {
+                    alert('Mobile number cannot be all zero.');
+                } else if (mobileNumber.startsWith('-')) {
+                    alert('Mobile number cannot start with a negative sign.');
+                } else if (/[a-zA-Z]/.test(mobileNumber)) {
+                    alert('Mobile number cannot contain letters.');
+                } else if (/[^0-9]/.test(mobileNumber)) {
+                    alert('Mobile number cannot contain special characters.');
+                } else {
+                    alert('Mobile number must be exactly 10 digits.');
+                }
+                return;
+            }
+    
+            // Password validation
+            if (password.length <= 8) {
+                alert('Password must be more than 8 characters.');
+                return;
+            }
+            if (password.startsWith('-')) {
+                alert('Password cannot start with a negative sign.');
+                return;
+            }
+            if (/^\d/.test(password)) {
+                alert('Password cannot start with a digit.');
+                return;
+            }
+            if (/^0+$/.test(password)) {
+                alert('Password cannot contain only zeros.');
+                return;
+            }
+            if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                alert('Password must be alphanumeric.');
+                return;
+            }
+    
+            // If validations pass, proceed with login
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mobile_number: mobileNumber, password: password }),
+                });
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    // Redirect to president.html upon successful login
+                    window.location.href = 'p_dashboard.html';
+                } else {
+                    document.getElementById('error-message').innerText = data.message || 'Invalid credentials';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error-message').innerText = 'An error occurred. Please try again later.';
+            }
+        }
+    </script>
+    
+</body>
+</html>

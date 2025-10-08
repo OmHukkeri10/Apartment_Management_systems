@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Complaint Records</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --bg-color: #ecf0f1;
+            --transition: all 0.3s ease-in-out;
+            --primary-color1: #3498db;
+            --secondary-color1: #2ecc71;
+            --shadow-color1: rgba(0, 0, 0, 0.2);
+            --bg-color1: #1f242d;
+            --second-bg-color1: #323946;
+            --text-color1: #ffffff;
+            --main-color1: #0ef;
+        }
+
+        body {
+            background: linear-gradient(
+                to right,
+                var(--secondary-color),
+                var(--second-bg-color1)
+            );
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px var(--shadow-color1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--primary-color);
+            box-shadow: 0 4px 6px var(--shadow-color1);
+            border-radius: 30px;
+            color: white;
+        }
+
+        h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--main-color1);
+        font-size: 1.8rem;
+      }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #72a1cf;
+        }
+
+        .button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: var(--primary-color1);
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- <header>
+    <h1>Complaint Records</h1>
+</header> -->
+
+<div class="container">
+    <h3>All Complaints</h3>
+    <table id="complaintTable">
+        <thead>
+            <tr>
+                <th>Flat Number</th>
+                <th>Complaint Type</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Complaints will be displayed here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const apiUrlComplaintRecords = 'http://localhost:3000/api/complaint-records';
+
+    // Function to fetch and display all complaint records
+    async function fetchComplaintRecords() {
+        const response = await fetch(apiUrlComplaintRecords);
+        const records = await response.json();
+        const tableBody = document.getElementById('complaintTable').getElementsByTagName('tbody')[0];
+
+        // Clear existing records
+        tableBody.innerHTML = '';
+
+        // Loop through the records and create a table row for each complaint
+        records.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.flat_number}</td>
+                <td>${record.complaint}</td>
+                <td>${record.description}</td>
+                <td>${record.status}</td>
+                <td>
+                    ${record.status === 'pending' ? 
+                        `<button class="button" onclick="updateStatus('${record._id}')">Mark as Completed</button>` : 
+                        'Completed'}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Function to update the status of a complaint record
+    async function updateStatus(id) {
+        const response = await fetch(`${apiUrlComplaintRecords}/${id}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+            alert('Status updated to Completed');
+            fetchComplaintRecords(); // Refresh the list
+        } else {
+            alert('Failed to update status');
+        }
+    }
+
+    // Fetch complaint records when the page loads
+    window.onload = fetchComplaintRecords;
+</script>
+
+</body>
+</html>

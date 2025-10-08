@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flat Owner Dashboard</title>
+    <link rel="stylesheet" href="../CSS/f_dashboard.css">
+</head>
+<body>
+    <header class="header">
+        <img src="../pics/logo.png" alt="Akshya Garden Apartment" class="logo_img">
+        <a href="#" class="logo">Flat Owner Dashboard</a>
+    </header>
+
+    <section class="f_dashboard" id="f_dashboard">
+        <div class="personal-info">
+            <h2>Welcome, [Flat Owner Name]</h2>
+        </div>
+
+        <div class="button-container">
+            <button class="function-button" onclick="window.location.href='f_complaints.html'">Submit a Complaint</button>
+            <button class="function-button" onclick="window.location.href='f_vacancy.html'">View Vacancies</button>
+            <button class="function-button" onclick="logout()">Logout</button>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const flatOwnerDetails = JSON.parse(localStorage.getItem('flatOwnerDetails'));
+
+            if (flatOwnerDetails) {
+                document.querySelector('.personal-info h2').textContent = `Welcome, ${flatOwnerDetails.name}`;
+                document.querySelector('.personal-info').innerHTML += `
+                    <p><strong>Flat Number:</strong> ${flatOwnerDetails.flatNumber}</p>
+                    <p><strong>Email:</strong> ${flatOwnerDetails.email}</p>
+                    <p><strong>Phone:</strong> ${flatOwnerDetails.mobile}</p>
+                `;
+            } else {
+                alert('Please log in first.');
+                window.location.href = 'f_login.html';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('flatOwnerDetails');
+            window.location.href = 'f_login.html';
+        }
+    </script>
+</body>
+</html>

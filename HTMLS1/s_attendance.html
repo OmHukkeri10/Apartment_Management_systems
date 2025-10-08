@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Management</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --text-light: #ecf0f1;
+            --primary-color1: #3498db;
+        }
+
+        body {
+            background: linear-gradient(to right, var(--secondary-color), #323946);
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: var(--primary-color);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .date-header {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0ef;
+            padding: 0.8rem 1.5rem;
+            margin: 0 auto 2rem;
+            width: fit-content;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            border: 1px solid var(--primary-color1);
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary-color1);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-light);
+            margin: 0 5px;
+        }
+
+        .checkin {
+            background-color: var(--secondary-color);
+        }
+
+        .checkout {
+            background-color: var(--primary-color1);
+        }
+
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="date-header" id="currentDateDisplay"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Mobile Number</th>
+                    <th>Category</th>
+                    <th>Check In Time</th>
+                    <th>Check Out Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateDateDisplay();
+            await loadEmployees();
+            setInterval(loadEmployees, 30000); // Refresh every 30 seconds
+        });
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("currentDateDisplay").innerText = 
+                `Today's Date: ${new Date().toLocaleDateString(undefined, options)}`;
+        }
+
+        function formatTime(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleTimeString();
+        }
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('http://localhost:3000/api/employees');
+                const employees = await response.json();
+                const tableBody = document.getElementById('employeeTable');
+                tableBody.innerHTML = '';
+
+                for (const employee of employees) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${employee.EmployeeID}</td>
+                        <td>${employee.Name}</td>
+                        <td>${employee.MobileNumber}</td>
+                        <td>${employee.Category}</td>
+                        <td>${formatTime(employee.todayLog?.CheckInTime)}</td>
+                        <td>${formatTime(employee.todayLog?.CheckOutTime)}</td>
+                        <td>
+                            <button class="btn checkin" onclick="checkIn(${employee.EmployeeID})" 
+                                ${employee.todayLog?.CheckInTime ? 'disabled' : ''}>Check In</button>
+                            <button class="btn checkout" onclick="checkOut(${employee.EmployeeID})"
+                                ${!employee.todayLog?.CheckInTime || employee.todayLog?.CheckOutTime ? 'disabled' : ''}>Check Out</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+            }
+        }
+
+        async function checkIn(employeeId) {
+            try {
+                const response = await fetch('http://localhost:3000/api/checkin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ EmployeeID: employeeId })
+                });
+                
+                if (response.ok) {
+                    await loadEmployees();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Check-in failed');
+                }
+            } catch (error) {
+                console.error('Error during check-in:', error);
+                alert('Check-in failed');
+            }
+        }
+
+        async function checkOut(employeeId) {
+            try {
+                const response = await fetch('http://localhost:3000/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ EmployeeID: employeeId })
+                });
+                
+                if (response.ok) {
+                    await loadEmployees();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Check-out failed');
+                }
+            } catch (error) {
+                console.error('Error during check-out:', error);
+                alert('Check-out failed');
+            }
+        }
+    </script>
+</body>
+</html>

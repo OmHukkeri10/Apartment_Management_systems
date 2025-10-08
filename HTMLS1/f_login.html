@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flat Owner Login</title>
+    <link rel="stylesheet" href="../CSS/login.css">
+</head>
+<body>
+    <main>
+        <section class="section-login" data-aos="fade-up">
+            <img src="../pics/logo.png" alt="Akshya Garden Apartment" class="logo">
+            <div class="container">
+                <h1>Flat Owner Login</h1>
+                <form onsubmit="event.preventDefault(); login();">
+                    <div class="input-group">
+                        <i class="input-icon fas fa-lock"></i>
+                        <select id="flat_number" required>
+                            <option value="">Select Flat Number</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-user"></i>
+                        <input type="text" id="mobile_number" class="input-field" placeholder="Mobile Number" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-lock"></i>
+                        <input type="password" id="password" class="input-field" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            AOS.init({
+                duration: 1000,
+                once: true
+            });
+    
+            loadFlatNumbers();
+        });
+    
+        async function loadFlatNumbers() {
+            const dropdown = document.getElementById('flat_number');
+            dropdown.innerHTML = '<option value="">Loading...</option>';
+    
+            try {
+                const response = await fetch('http://localhost:3000/getFlatNumbers');
+                const result = await response.json();
+    
+                if (result.success && result.flat_numbers.length > 0) {
+                    dropdown.innerHTML = result.flat_numbers
+                        .map(flatNumber => `<option value="${flatNumber}">${flatNumber}</option>`)
+                        .join('');
+                    dropdown.insertAdjacentHTML('afterbegin', '<option value="" selected>Select a flat number</option>');
+                } else {
+                    dropdown.innerHTML = '<option value="">No flats found</option>';
+                }
+            } catch (err) {
+                dropdown.innerHTML = '<option value="">Error loading flats</option>';
+                console.error('Error fetching flat numbers:', err);
+            }
+        }
+    
+        async function login() {
+            const flatNumber = document.getElementById('flat_number').value.trim();
+            const mobileNumber = document.getElementById('mobile_number').value.trim();
+            const password = document.getElementById('password').value.trim();
+    
+            // Mobile number validation
+            if (!/^\d{10}$/.test(mobileNumber)) {
+                if (mobileNumber === '0') {
+                    alert('Mobile number cannot be zero.');
+                } else if (/^-/.test(mobileNumber)) {
+                    alert('Mobile number cannot start with a negative sign.');
+                } else if (/[a-zA-Z]/.test(mobileNumber)) {
+                    alert('Mobile number cannot contain letters.');
+                } else if (/[^0-9]/.test(mobileNumber)) {
+                    alert('Mobile number cannot contain special characters.');
+                } else {
+                    alert('Mobile number must be a 10-digit number.');
+                }
+                return;
+            }
+    
+            // Password validation
+            if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                alert('Password must be at least 8 characters long and alphanumeric.');
+                return;
+            }
+            if (/^-/.test(password)) {
+                alert('Password cannot start with a negative sign.');
+                return;
+            }
+            if (/^\d/.test(password)) {
+                alert('Password cannot start with a digit.');
+                return;
+            }
+            if (/^0+$/.test(password)) {
+                alert('Password cannot consist of only zeros.');
+                return;
+            }
+    
+            // Proceed with login if validations pass
+            if (!flatNumber || !mobileNumber || !password) {
+                alert('Please enter all fields.');
+                return;
+            }
+    
+            try {
+                const response = await fetch('http://localhost:3000/f_login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ flat_number: flatNumber, mobile_number: mobileNumber, password: password })
+                });
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    localStorage.setItem('flatOwnerDetails', JSON.stringify({
+                        name: data.name,
+                        flatNumber: flatNumber,
+                        email: data.email,
+                        phone: data.mobile,
+                    }));
+    
+                    window.location.href = 'f_dashboard.html';
+                } else {
+                    alert(data.message || 'Invalid credentials');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            }
+        }
+    </script>
+    
+</body>
+</html>
